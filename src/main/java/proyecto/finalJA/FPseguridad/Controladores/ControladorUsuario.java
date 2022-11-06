@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import proyecto.finalJA.FPseguridad.modelos.Rol;
 import proyecto.finalJA.FPseguridad.modelos.Usuario;
+import proyecto.finalJA.FPseguridad.repositorios.RepositorioRol;
 import proyecto.finalJA.FPseguridad.repositorios.RepositorioUsuario;
 
 import java.security.MessageDigest;
@@ -20,6 +22,9 @@ public class ControladorUsuario {
 
     @Autowired
     private RepositorioUsuario miRepositorioUsuario;
+
+    @Autowired
+    private RepositorioRol miRepositorioRol;
 
     @GetMapping
     public List<Usuario> buscarTodoslosUsusarios(){
@@ -78,6 +83,25 @@ public class ControladorUsuario {
         }
 
     }
+
+    // Asociacion de uno a muchos
+
+    @PutMapping("{idUsuario}/rol/{idRol}")
+    public Usuario asignarRolAlUsuario(@PathVariable String idUsuario, @PathVariable String idRol){
+        Usuario usuario= miRepositorioUsuario.findById(idUsuario).orElse(null);
+        Rol rol= miRepositorioRol.findById(idRol).orElse(null);
+
+        if(usuario != null && rol != null) {
+            usuario.setRol(rol);
+            return miRepositorioUsuario.save(usuario);
+        }else{
+            return null;
+        }
+
+    }
+
+
+
 
     public String convertirSHA256(String password) {
         MessageDigest md = null;
