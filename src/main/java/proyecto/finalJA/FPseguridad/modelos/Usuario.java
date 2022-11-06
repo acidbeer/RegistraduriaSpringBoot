@@ -2,6 +2,7 @@ package proyecto.finalJA.FPseguridad.modelos;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -15,6 +16,9 @@ public class Usuario {
     private String correo;
 
     private String contrasena;
+
+    @DBRef
+    private Rol rol;
 
     public Usuario(String seudonimo, String correo, String contrasena) {
         this.seudonimo = seudonimo;
