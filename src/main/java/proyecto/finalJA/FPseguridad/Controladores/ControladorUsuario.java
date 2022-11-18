@@ -10,6 +10,8 @@ import proyecto.finalJA.FPseguridad.modelos.Usuario;
 import proyecto.finalJA.FPseguridad.repositorios.RepositorioRol;
 import proyecto.finalJA.FPseguridad.repositorios.RepositorioUsuario;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -88,8 +90,8 @@ public class ControladorUsuario {
 
     @PutMapping("{idUsuario}/rol/{idRol}")
     public Usuario asignarRolAlUsuario(@PathVariable String idUsuario, @PathVariable String idRol){
-        Usuario usuario= miRepositorioUsuario.findById(idUsuario).orElse(null);
-        Rol rol= miRepositorioRol.findById(idRol).orElse(null);
+        Usuario usuario= miRepositorioUsuario.findById(idUsuario).orElseThrow(RuntimeException::new);
+        Rol rol= miRepositorioRol.findById(idRol).orElseThrow(RuntimeException::new);
 
         if(usuario != null && rol != null) {
             usuario.setRol(rol);
@@ -100,6 +102,35 @@ public class ControladorUsuario {
 
     }
 
+    @PostMapping("/validar-usuario")
+    public Usuario validarCorreoYContrasena(@RequestBody Usuario infoUsuario, HttpServletResponse response) throws IOException {
+        log.info("Usuario que llega desde postman: {}", infoUsuario);
+
+        //buscar en base de datos el usuario por correo
+        Usuario usuarioActual= miRepositorioUsuario.findByEmail(infoUsuario.getCorreo());
+        log.info("usuario encontrado en base de datos: {}", usuarioActual);
+
+        //validar si el usuario fue encontrado
+        if(usuarioActual != null){
+            //validar contrasena
+            String contrasenaUsuario=convertirSHA256(infoUsuario.getContrasena());
+            String contrasenaBaseDatos= usuarioActual.getContrasena();
+
+            if(contrasenaUsuario.equals(contrasenaBaseDatos)){
+                usuarioActual.setContrasena("");
+                return usuarioActual;
+            }else{
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                return null;
+            }
+
+        }else{
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return null;
+        }
+
+
+    }
 
 
 
