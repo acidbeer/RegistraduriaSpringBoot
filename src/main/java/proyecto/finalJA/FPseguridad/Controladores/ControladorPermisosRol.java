@@ -85,7 +85,7 @@ public class ControladorPermisosRol {
                 return null;
             }
         }else{
-            log.error("NO se encuentra el rol o el permiso en base de datos");
+            log.error("NO se encuentra el rol o el permiso en la base de datos");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return null;
         }
